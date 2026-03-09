@@ -318,6 +318,8 @@ public static class Helpers
             case "CAMetalLayer":
             case "AHardwareBuffer":
             case "ANativeWindow":
+            case "ubm_surface":
+            case "ubm_device":
             // NV extension
             case "_screen_context":
             case "_screen_window":
