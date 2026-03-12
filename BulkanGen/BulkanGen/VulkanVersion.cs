@@ -29,7 +29,7 @@ namespace BulkanGen
                 // Extend Enums
                 foreach (var enumType in feature.Enums)
                 {
-                    if (enumType.Extends != null & enumType.Alias == null)
+                    if (enumType.Extends != null && enumType.Alias == null)
                     {
                         string name = enumType.Extends;
                         var enumDefinition = spec.Enums.Find(c => c.Name == name);
@@ -38,6 +38,22 @@ namespace BulkanGen
                         newValue.Name = enumType.Name;
                         newValue.Value = int.Parse(enumType.Value);
                         enumDefinition.Values.Add(newValue);
+                    }
+                    else if (enumType.Extends != null && enumType.Alias != null)
+                    {
+                        // Aliased enum extension: resolve the alias to copy the value
+                        string name = enumType.Extends;
+                        var enumDefinition = spec.Enums.Find(c => c.Name == name);
+                        var target = enumDefinition?.Values.Find(v => v.Name == enumType.Alias);
+                        if (target != null && !enumDefinition.Values.Exists(e => e.Name == enumType.Name))
+                        {
+                            EnumValue newValue = new EnumValue();
+                            newValue.Name = enumType.Name;
+                            newValue.Value = target.Value;
+                            newValue.HexValueString = target.HexValueString;
+                            newValue.Alias = enumType.Alias;
+                            enumDefinition.Values.Add(newValue);
+                        }
                     }
                 }
 
@@ -89,7 +105,7 @@ namespace BulkanGen
                 // Extend Enums
                 foreach (var enumType in extension.Enums)
                 {
-                    if (enumType.Extends != null & enumType.Alias == null)
+                    if (enumType.Extends != null && enumType.Alias == null)
                     {
                         string name = enumType.Extends;
                         var enumDefinition = spec.Enums.Find(c => c.Name == name);
@@ -102,6 +118,25 @@ namespace BulkanGen
                             newValue.HexValueString = enumType.Value;
                             newValue.Value = nint.Parse(enumType.Value);
                             enumDefinition.Values.Add(newValue);
+                        }
+                    }
+                    else if (enumType.Extends != null && enumType.Alias != null)
+                    {
+                        // Aliased enum extension: resolve the alias to copy the value
+                        string name = enumType.Extends;
+                        var enumDefinition = spec.Enums.Find(c => c.Name == name);
+                        if (enumDefinition != null && !enumDefinition.Values.Exists(e => e.Name == enumType.Name))
+                        {
+                            var target = enumDefinition.Values.Find(v => v.Name == enumType.Alias);
+                            if (target != null)
+                            {
+                                EnumValue newValue = new EnumValue();
+                                newValue.Name = enumType.Name;
+                                newValue.Value = target.Value;
+                                newValue.HexValueString = target.HexValueString;
+                                newValue.Alias = enumType.Alias;
+                                enumDefinition.Values.Add(newValue);
+                            }
                         }
                     }
                 }

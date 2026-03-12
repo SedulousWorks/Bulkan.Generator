@@ -26,6 +26,21 @@ namespace BulkanGen
                 enums.Values.Add(EnumValue.FromXML(v));
             }
 
+            // Resolve aliases: enum values defined as alias="X" need to inherit
+            // the value from the target they alias.
+            foreach (var ev in enums.Values)
+            {
+                if (ev.Alias != null && ev.Value == 0 && ev.HexValueString == null)
+                {
+                    var target = enums.Values.Find(v => v.Name == ev.Alias);
+                    if (target != null)
+                    {
+                        ev.Value = target.Value;
+                        ev.HexValueString = target.HexValueString;
+                    }
+                }
+            }
+
             return enums;
         }
     }
